@@ -1,26 +1,20 @@
+<script setup lang="ts">
+import { RouterLink, RouterView } from "vue-router";
+</script>
+
 <template>
-  <v-app>
-    <v-main>
-      <HelloWorld/>
-    </v-main>
-  </v-app>
+  <header>
+    <div class="wrapper">
+      <nav>
+        <RouterLink to="/">Home</RouterLink>
+        <RouterLink to="/about">About</RouterLink>
+      </nav>
+    </div>
+  </header>
+
+  <RouterView />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import HelloWorld from './components/HelloWorld.vue'
-
-export default defineComponent({
-  name: 'App',
-
-  components: {
-    HelloWorld,
-  },
-
-  data () {
-    return {
-      //
-    }
-  },
-})
-</script>
+<style>
+@import "@/assets/base.css";
+</style>
