@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
+  <v-app>
+    <v-main>
       <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+        <router-link to="/">Home</router-link>
+        <router-link to="/about">About</router-link>
       </nav>
-    </div>
-  </header>
-
-  <RouterView />
+      <router-view />
+    </v-main>
+  </v-app>
 </template>
-
-<style>
-@import "@/assets/base.css";
-</style>
