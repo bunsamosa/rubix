@@ -1,5 +1,5 @@
 <script setup lang="ts"></script>
 
 <template>
-  <main></main>
+  <v-main></v-main>
 </template>
