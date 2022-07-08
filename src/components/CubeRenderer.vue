@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 
-// define input params
-// container ID to attach the scene
-const props = defineProps<{
-  containerID: string
-}>();
+// define ref for division
+const mycanvas = ref<HTMLInputElement | null>(null);
 
 // setup camera
 const camera = new THREE.PerspectiveCamera(
@@ -64,12 +61,14 @@ function resizeScene() {
 
 // attach renderer to dom
 onMounted(() => {
-  const container = document.getElementById(props.containerID);
-  container?.appendChild(renderer.domElement);
-  renderer.setAnimationLoop(renderScene);
-  window.addEventListener("resize", resizeScene)
+  if (mycanvas.value) {
+    mycanvas.value.appendChild(renderer.domElement);
+    renderer.setAnimationLoop(renderScene);
+    window.addEventListener("resize", resizeScene)
+  }
 });
 </script>
 
 <template>
+  <div ref="mycanvas"> </div>
 </template>
