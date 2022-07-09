@@ -33,21 +33,44 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-// create a cube
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+// create a geometry
+const star = createStarGeometry();
 const material = new THREE.MeshStandardMaterial({ color: 0x00FF00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+const mesh = new THREE.Mesh(star, material);
+scene.add(mesh);
 
 // add user controls
 const controls = new OrbitControls(camera, renderer.domElement);
 
-// move camera away from cube
-// camera.position.z = 5;
+// create star
+function createStarGeometry(innerRadius = 0.4, outerRadius = 0.8, points = 5) {
+
+  const shape = new THREE.Shape();
+  const pi2 = Math.PI * 2;
+  const inc = pi2 / (points * 2); // angle between each lines
+
+  // draw lines starting from outer
+  shape.moveTo(outerRadius, 0);
+  let inner = true;
+
+  for (let theta = inc; theta < pi2; theta += inc) {
+    const radius = (inner) ? innerRadius : outerRadius;
+    shape.lineTo(Math.cos(theta) * radius, Math.sin(theta) * radius);
+    inner = !inner;
+  }
+
+  // settings for geometry
+  const extrudeSettings = {
+    steps: 1,
+    depth: 1,
+    bevelEnabled: false
+  }
+  return new THREE.ExtrudeGeometry(shape, extrudeSettings);
+}
 
 // render the scene
 function renderScene() {
-  cube.rotateX(0.01);
+  star.rotateX(0.01);
   renderer.render(scene, camera);
 }
 
