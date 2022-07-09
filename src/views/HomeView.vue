@@ -1,5 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import WorldRenderer from '@/components/World/WorldRenderer.vue';
+</script>
 
 <template>
-  <v-main></v-main>
+  <WorldRenderer />
 </template>
