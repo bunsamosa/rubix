@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WorldRenderer from '@/components/World/WorldRenderer.vue';
+import WorldRenderer from "@/components/world/WorldRenderer.vue";
 </script>
 
 <template>
