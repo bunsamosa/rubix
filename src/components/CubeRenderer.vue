@@ -20,7 +20,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
 // setup ambient light
-const ambientLight = new THREE.HemisphereLight(0xFFFFFF, 0xBBBBFF, 0.3);
+const ambientLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 0.3);
 scene.add(ambientLight);
 
 // setup directional light
@@ -35,12 +35,12 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 // create a cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshStandardMaterial({ color: 0x00FF00 });
+const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
 // add user controls
-const controls = new OrbitControls(camera, renderer.domElement);
+new OrbitControls(camera, renderer.domElement);
 
 // move camera away from cube
 // camera.position.z = 5;
@@ -63,11 +63,11 @@ onMounted(() => {
   if (mycanvas.value) {
     mycanvas.value.appendChild(renderer.domElement);
     renderer.setAnimationLoop(renderScene);
-    window.addEventListener("resize", resizeScene)
+    window.addEventListener("resize", resizeScene);
   }
 });
 </script>
 
 <template>
-  <div ref="mycanvas"> </div>
+  <div ref="mycanvas"></div>
 </template>

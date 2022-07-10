@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import StarRenderer from '@/components/StarRenderer.vue';
+import StarRenderer from "@/components/StarRenderer.vue";
 </script>
 
 <template>
