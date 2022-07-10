@@ -7,6 +7,7 @@
         <router-link to="/">Home</router-link>
         <router-link to="/cube">Cube</router-link>
         <router-link to="/star">Star</router-link>
+        <router-link to="/robot">Robot</router-link>
       </nav>
       <router-view />
     </v-main>
