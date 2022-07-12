@@ -51,7 +51,7 @@ let robot = null;
 // load gltf asset
 function loadGLTF() {
   // ste assets path
-  const loader = new GLTFLoader().setPath("../../../src/assets/robot/");
+  const loader = new GLTFLoader().setPath("assets/");
 
   loader.load(
     "robot.glb",
@@ -84,7 +84,7 @@ function setEnvironment() {
   pmremGenerator.compileEquirectangularShader();
 
   loader.load(
-    "../../../src/assets/robot/venice_sunset_1k.hdr",
+    "assets/venice_sunset_1k.hdr",
     (texture) => {
       const envMap = pmremGenerator.fromEquirectangular(texture).texture;
       pmremGenerator.dispose();
