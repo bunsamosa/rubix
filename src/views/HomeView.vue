@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import WorldRenderer from "@/components/world/WorldRenderer.vue";
+import EarthRenderer from "@/components/earth/EarthRenderer.vue";
 </script>
 
 <template>
-  <WorldRenderer />
+    <EarthRenderer />
 </template>
