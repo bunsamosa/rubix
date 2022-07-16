@@ -9,11 +9,14 @@
           <router-link to="/">Home</router-link>
         </v-tab>
         <v-tab>
+          <router-link to="/world">World</router-link>
+        </v-tab>
+        <!-- <v-tab>
           <router-link to="/cube">Cube</router-link>
         </v-tab>
         <v-tab>
           <router-link to="/star">Star</router-link>
-        </v-tab>
+        </v-tab> -->
         <v-tab>
           <router-link to="/robot">Robot</router-link>
         </v-tab>
