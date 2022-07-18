@@ -11,6 +11,9 @@
         <v-tab>
           <router-link to="/world">World</router-link>
         </v-tab>
+        <v-tab>
+          <router-link to="/city">City</router-link>
+        </v-tab>
         <!-- <v-tab>
           <router-link to="/cube">Cube</router-link>
         </v-tab>
