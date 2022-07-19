@@ -3,5 +3,5 @@ import RobotRenderer from "@/components/robot/RobotRenderer.vue";
 </script>
 
 <template>
-  <RobotRenderer />
+    <RobotRenderer />
 </template>

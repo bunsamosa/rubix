@@ -8,10 +8,10 @@ const mycanvas = ref<HTMLInputElement | null>(null);
 
 // setup camera
 const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
 );
 camera.position.set(0, 0, 4);
 
@@ -47,27 +47,27 @@ new OrbitControls(camera, renderer.domElement);
 
 // render the scene
 function renderScene() {
-  cube.rotateX(0.01);
-  renderer.render(scene, camera);
+    cube.rotateX(0.01);
+    renderer.render(scene, camera);
 }
 
 // resize the scene
 function resizeScene() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 // attach renderer to dom
 onMounted(() => {
-  if (mycanvas.value) {
-    mycanvas.value.appendChild(renderer.domElement);
-    renderer.setAnimationLoop(renderScene);
-    window.addEventListener("resize", resizeScene);
-  }
+    if (mycanvas.value) {
+        mycanvas.value.appendChild(renderer.domElement);
+        renderer.setAnimationLoop(renderScene);
+        window.addEventListener("resize", resizeScene);
+    }
 });
 </script>
 
 <template>
-  <div ref="mycanvas"></div>
+    <div ref="mycanvas"></div>
 </template>

@@ -3,5 +3,5 @@ import StarRenderer from "@/components/StarRenderer.vue";
 </script>
 
 <template>
-  <StarRenderer />
+    <StarRenderer />
 </template>

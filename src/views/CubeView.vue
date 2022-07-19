@@ -3,5 +3,5 @@ import CubeRenderer from "@/components/CubeRenderer.vue";
 </script>
 
 <template>
-  <CubeRenderer />
+    <CubeRenderer />
 </template>
