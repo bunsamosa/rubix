@@ -18,8 +18,6 @@ app.use(createPinia());
 app.use(vuetify);
 app.use(router);
 
-// The URL on your server where CesiumJS's static files are hosted.
-window.CESIUM_BASE_URL = '/assets/Cesium';
 
 // mount app
 app.mount("#app");
