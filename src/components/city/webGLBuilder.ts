@@ -1,9 +1,11 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
-
-export function initWebGLOverlay(map: google.maps.Map, mapOptions: google.maps.MapOptions) {
-    let scene: THREE.Scene, renderer: THREE.WebGLRenderer, camera: THREE.Camera, loader: GLTFLoader;
+export function initWebGLOverlay(map: google.maps.Map, mapOptions: MapOptions) {
+    let scene: THREE.Scene,
+        renderer: THREE.WebGLRenderer,
+        camera: THREE.Camera,
+        loader: GLTFLoader;
 
     // create overlay
     const webGLOverlayView = new google.maps.WebGLOverlayView();
@@ -21,14 +23,11 @@ export function initWebGLOverlay(map: google.maps.Map, mapOptions: google.maps.M
         scene.add(directionalLight);
 
         loader = new GLTFLoader().setPath("assets/robot/");
-        loader.load(
-            "robot.glb",
-            gltf => {
-                gltf.scene.scale.set(25, 25, 25);
-                gltf.scene.rotation.x = 90 * Math.PI / 180;
-                scene.add(gltf.scene);
-            }
-        );
+        loader.load("robot.glb", (gltf) => {
+            gltf.scene.scale.set(25, 25, 25);
+            gltf.scene.rotation.x = (90 * Math.PI) / 180;
+            scene.add(gltf.scene);
+        });
     };
 
     webGLOverlayView.onContextRestored = ({ gl }) => {
@@ -44,26 +43,26 @@ export function initWebGLOverlay(map: google.maps.Map, mapOptions: google.maps.M
                 map.moveCamera({
                     tilt: mapOptions.tilt,
                     heading: mapOptions.heading,
-                    zoom: mapOptions.zoom
+                    zoom: mapOptions.zoom,
                 });
 
                 if (mapOptions.tilt < 67.5) {
-                    mapOptions.tilt += 0.5
+                    mapOptions.tilt += 0.5;
                 } else if (mapOptions.heading <= 360) {
                     mapOptions.heading += 0.2;
                 } else {
-                    renderer.setAnimationLoop(null)
+                    renderer.setAnimationLoop(null);
                 }
             });
-        }
+        };
     };
 
     webGLOverlayView.onDraw = ({ gl, transformer }) => {
         const latLngAltitudeLiteral: google.maps.LatLngAltitudeLiteral = {
             lat: mapOptions.center.lat,
             lng: mapOptions.center.lng,
-            altitude: 10
-        }
+            altitude: 10,
+        };
 
         const matrix = transformer.fromLatLngAltitude(latLngAltitudeLiteral);
         camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
@@ -74,5 +73,5 @@ export function initWebGLOverlay(map: google.maps.Map, mapOptions: google.maps.M
     };
 
     // add map to overlay
-    webGLOverlayView.setMap(map)
-};
+    webGLOverlayView.setMap(map);
+}

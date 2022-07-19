@@ -11,10 +11,10 @@ const mycanvas = ref<HTMLInputElement | null>(null);
 
 // setup camera
 const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
 );
 camera.position.set(0, 0, 1);
 
@@ -50,75 +50,75 @@ let robot = null;
 
 // load gltf asset
 function loadGLTF() {
-  // ste assets path
-  const loader = new GLTFLoader().setPath("assets/robot/");
+    // ste assets path
+    const loader = new GLTFLoader().setPath("assets/robot/");
 
-  loader.load(
-    "robot.glb",
+    loader.load(
+        "robot.glb",
 
-    (gltf) => {
-      scene.add(gltf.scene);
+        (gltf) => {
+            scene.add(gltf.scene);
 
-      // scale the object
-      const bbox = new THREE.Box3().setFromObject(gltf.scene);
+            // scale the object
+            const bbox = new THREE.Box3().setFromObject(gltf.scene);
 
-      loadingBar.visible = false;
-      robot = gltf.scene;
-      renderer.setAnimationLoop(renderScene);
-    },
+            loadingBar.visible = false;
+            robot = gltf.scene;
+            renderer.setAnimationLoop(renderScene);
+        },
 
-    (xhr) => {
-      loadingBar.progress = xhr.loaded / xhr.total;
-    },
+        (xhr) => {
+            loadingBar.progress = xhr.loaded / xhr.total;
+        },
 
-    (err) => {
-      console.log(err);
-    }
-  );
+        (err) => {
+            console.log(err);
+        }
+    );
 }
 
 // set environemnt
 function setEnvironment() {
-  const loader = new RGBELoader();
-  const pmremGenerator = new THREE.PMREMGenerator(renderer);
-  pmremGenerator.compileEquirectangularShader();
+    const loader = new RGBELoader();
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
 
-  loader.load(
-    "assets/robot/venice_sunset_1k.hdr",
-    (texture) => {
-      const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-      pmremGenerator.dispose();
-      scene.environment = envMap;
-    },
-    undefined,
-    (err) => {
-      console.log("An error occurred setting the environment");
-    }
-  );
+    loader.load(
+        "assets/robot/venice_sunset_1k.hdr",
+        (texture) => {
+            const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+            pmremGenerator.dispose();
+            scene.environment = envMap;
+        },
+        undefined,
+        (err) => {
+            console.log("An error occurred setting the environment");
+        }
+    );
 }
 
 // render the scene
 function renderScene() {
-  renderer.render(scene, camera);
+    renderer.render(scene, camera);
 }
 
 // resize the scene
 function resizeScene() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 // attach renderer to dom
 onMounted(() => {
-  if (mycanvas.value) {
-    mycanvas.value.appendChild(renderer.domElement);
-    // renderer.setAnimationLoop(renderScene);
-    window.addEventListener("resize", resizeScene);
-  }
+    if (mycanvas.value) {
+        mycanvas.value.appendChild(renderer.domElement);
+        // renderer.setAnimationLoop(renderScene);
+        window.addEventListener("resize", resizeScene);
+    }
 });
 </script>
 
 <template>
-  <div ref="mycanvas"></div>
+    <div ref="mycanvas"></div>
 </template>

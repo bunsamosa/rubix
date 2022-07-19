@@ -1,6 +1,6 @@
-export { };
-declare global {
-    interface Window {
-        // window variables
-    }
-}
+// export {};
+// declare global {
+//   interface Window {
+//     // window variables
+//   }
+// }

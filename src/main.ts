@@ -18,6 +18,5 @@ app.use(createPinia());
 app.use(vuetify);
 app.use(router);
 
-
 // mount app
 app.mount("#app");

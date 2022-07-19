@@ -18,18 +18,18 @@ player.play();
 
 // resize the scene
 function resizeScene() {
-  player.setSize(window.innerWidth, window.innerHeight);
+    player.setSize(window.innerWidth, window.innerHeight);
 }
 
 // attach renderer to dom
 onMounted(() => {
-  if (mycanvas.value) {
-    mycanvas.value.appendChild(player.dom);
-    window.addEventListener("resize", resizeScene);
-  }
+    if (mycanvas.value) {
+        mycanvas.value.appendChild(player.dom);
+        window.addEventListener("resize", resizeScene);
+    }
 });
 </script>
 
 <template>
-  <div ref="mycanvas"></div>
+    <div ref="mycanvas"></div>
 </template>
