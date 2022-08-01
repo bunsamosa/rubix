@@ -8,6 +8,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "forceConsistentCasingInFileNames": false,
+    "noImplicitAny": false,
+    "allowJs": true,
     "paths": {
       "@/*": [
         "./src/*"
