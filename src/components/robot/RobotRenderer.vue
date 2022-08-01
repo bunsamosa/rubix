@@ -46,7 +46,7 @@ loadGLTF();
 
 // add user controls
 const controls = new OrbitControls(camera, renderer.domElement);
-let robot = null;
+let robot: any = null;
 
 // load gltf asset
 function loadGLTF() {
