@@ -16,7 +16,7 @@ class Game {
     public sun: THREE.DirectionalLight;
     public joystick: JoyStick | any;
 
-    constructor() {
+    constructor(container: HTMLElement) {
 
         // check if webgl is enabled
         if (WEBGL.isWebGLAvailable() === false) {
@@ -25,16 +25,15 @@ class Game {
 
         // game variables
         const game = this;
-        this.player = new Player();
+        this.player = {} as Player;
         this.animations = new Map();
-        this.container = document.getElementById("mycanvas") as HTMLElement;
+        this.container = container;
+        const animFiles = ["walking", "running", "walkback", "turn", "idle"];
 
+        // initialize threejs components
         // create game clock
         this.clock = new THREE.Clock();
 
-        const animFiles = ["walking", "running", "walkback", "turn", "idle"];
-
-        // initialize
         // setup camera
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
         this.camera.position.set(112, 100, 600);
@@ -72,25 +71,26 @@ class Game {
 
         // setup grid on the ground
         const grid = new THREE.GridHelper(5000, 40, 0x000000, 0x000000);
-        grid.material.opacity = 0.2;
-        grid.material.transparent = true;
+        let material = grid.material as THREE.Material
+        material.opacity = 0.2;
+        material.transparent = true;
         this.scene.add(grid);
 
-        // model
+        // load player model
         const loader = new FBXLoader();
-
         loader.load("assets/players/boy.fbx", (object) => {
             // animations
-            object.mixer = new THREE.AnimationMixer(object);
-            game.player.mixer = object.mixer;
-            game.player.root = object.mixer.getRoot();
+            const mixer = new THREE.AnimationMixer(object);
+            game.player.mixer = mixer;
+            game.player.root = mixer.getRoot();
 
             // name for the object
             object.name = "player";
 
             // traverse children and update attributes
             object.traverse(function (child) {
-                if (child.isMesh) {
+                let isMesh = (child as THREE.Mesh).isMesh;
+                if (isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = false;
                 }
@@ -106,11 +106,11 @@ class Game {
             //     });
             // });
 
+            // wrap player in a 3D object
             game.player.object = new THREE.Object3D();
             game.scene.add(game.player.object);
             game.player.object.add(object);
             game.animations["idle"] = object.animations[0];
-
             game.loadAnimations(loader, animFiles);
         });
 
@@ -122,12 +122,10 @@ class Game {
         this.container.appendChild(this.renderer.domElement);
 
         // add event listener to resize canvas on window resize
-        window.addEventListener('resize', function () { game.onWindowResize(); }, false);
+        window.addEventListener("resize", game.onWindowResize, false);
 
-        // generic error function
-        window.onError = function (error) {
-            console.error(JSON.stringify(error));
-        }
+        // generic error handler
+        window.addEventListener("error", (error) => { console.error(JSON.stringify(error)); });
     };
 
     // load all animations
@@ -148,18 +146,24 @@ class Game {
             game: game
         });
 
+        // set action and start rendering
         game.action = "idle";
         game.animate();
     };
 
     // move player
     movePlayer(dt) {
+        // move the player forward
         if (this.player.move.forward > 0) {
-            const speed = (this.player.action == 'running') ? 400 : 150;
+            const speed = (this.player.action == "running") ? 400 : 150;
             this.player.object.translateZ(dt * speed);
-        } else {
+        }
+        else {
+            // move player backwards
             this.player.object.translateZ(-dt * 30);
         }
+
+        // turn
         this.player.object.rotateY(this.player.move.turn * dt);
     };
 
@@ -170,7 +174,9 @@ class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    set action(name) {
+    // set animation action
+    set action(name: string) {
+        // stop all current animations and load new ones
         const action = this.player.mixer.clipAction(this.animations[name]);
         action.time = 0;
         this.player.mixer.stopAllAction();
@@ -181,84 +187,118 @@ class Game {
         action.play();
     }
 
+    // read current action
     get action() {
         if (this.player === undefined || this.player.action === undefined) return "";
         return this.player.action;
     }
 
+    // player control states - callback for joystick
     playerControl(forward, turn) {
         turn = -turn;
 
         if (forward > 0.3) {
-            if (this.player.action != 'walking' && this.player.action != 'running') this.action = 'walking';
-        } else if (forward < -0.3) {
-            if (this.player.action != 'walkback') this.action = 'walkback';
-        } else {
+            // walking forward
+            if (this.player.action != "walking" && this.player.action != "running") this.action = "walking";
+        }
+        else if (forward < -0.3) {
+            // walking backward
+            if (this.player.action != "walkback") this.action = "walkback";
+        }
+        else {
+            // turn
             forward = 0;
             if (Math.abs(turn) > 0.1) {
-                if (this.player.action != 'turn') this.action = 'turn';
-            } else if (this.player.action != "idle") {
-                this.action = 'idle';
+                if (this.player.action != "turn") this.action = "turn";
             }
-        }
+            else if (this.player.action != "idle") {
+                this.action = "idle";
+            }
+        };
 
+        // stop moving
         if (forward == 0 && turn == 0) {
             delete this.player.move;
-        } else {
+        }
+        else {
+            // set movement speed
             this.player.move = { forward, turn };
         }
     }
 
+    // set current active camera
     set activeCamera(object) {
         this.player.cameras.active = object;
     }
 
+    // create cameras for different views of the player
     createCameras() {
         const game = this;
         const offset = new THREE.Vector3(0, 80, 0);
+
         const front = new THREE.Object3D();
         front.position.set(112, 100, 600);
         front.parent = this.player.object;
+
         const back = new THREE.Object3D();
         back.position.set(0, 300, -600);
         back.parent = this.player.object;
+
         const wide = new THREE.Object3D();
         wide.position.set(178, 139, 1665);
         wide.parent = this.player.object;
+
         const overhead = new THREE.Object3D();
         overhead.position.set(0, 400, 0);
         overhead.parent = this.player.object;
+
         const collect = new THREE.Object3D();
         collect.position.set(40, 82, 94);
         collect.parent = this.player.object;
+
+        // store cameras in player
         this.player.cameras = { front, back, wide, overhead, collect };
         game.activeCamera = this.player.cameras.back;
     }
 
+    // render game
     animate() {
         const game = this;
         const dt = this.clock.getDelta();
 
+        // set render loop
         requestAnimationFrame(function () { game.animate(); });
 
-        if (this.player.mixer !== undefined) this.player.mixer.update(dt);
+        // update animations
+        if (this.player.mixer !== undefined) {
+            this.player.mixer.update(dt);
+        }
 
-        if (this.player.action == 'walking') {
+        // update player control state
+        if (this.player.action == "walking") {
             const elapsedTime = Date.now() - this.player.actionTime;
+
             if (elapsedTime > 1000 && this.player.move.forward > 0) {
-                this.action = 'running';
+                this.action = "running";
             }
         }
 
-        if (this.player.move !== undefined) this.movePlayer(dt);
+        // update player position
+        if (this.player.move !== undefined) {
+            this.movePlayer(dt);
+        }
 
+        // move the camera
         if (this.player.cameras != undefined && this.player.cameras.active != undefined) {
-            this.camera.position.lerp(this.player.cameras.active.getWorldPosition(new THREE.Vector3()), 0.05);
+            let worldPosition = this.player.cameras.active.getWorldPosition(new THREE.Vector3());
+            this.camera.position.lerp(worldPosition, 0.05);
+
             const pos = this.player.object.position.clone();
             pos.y += 200;
             this.camera.lookAt(pos);
         }
 
+        // move the directionall light to focus the player
         if (this.sun != undefined) {
             this.sun.position.x = this.player.object.position.x;
             this.sun.position.y = this.player.object.position.y + 200;
@@ -266,18 +306,10 @@ class Game {
             this.sun.target = this.player.object;
         }
 
+        // render scene
         this.renderer.render(this.scene, this.camera);
 
     }
 }
-
-class Player {
-    public object: any;
-    public move: any;
-    public action: string = "idle";
-    public mixer: THREE.AnimationMixer;
-    public actionTime: any;
-    public cameras: any;
-};
 
 export { Game };
