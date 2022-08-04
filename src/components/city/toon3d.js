@@ -1,6 +1,6 @@
 class Easing {
 	// t: current time, b: begInnIng value, c: change In value, d: duration
-	constructor(start, end, duration, startTime = 0, type = 'linear') {
+	constructor(start, end, duration, startTime = 0, type = "linear") {
 		this.b = start;
 		this.c = end - start;
 		this.d = duration;
@@ -205,7 +205,7 @@ class Tween {
 		this.duration = duration;
 		this.currentTime = 0;
 		this.finished = false;
-		//constructor(start, end, duration, startTime=0, type='linear')
+		//constructor(start, end, duration, startTime=0, type="linear")
 		this.easing = new Easing(target[channel], endValue, duration, 0, easing);
 	}
 
@@ -254,13 +254,13 @@ class SFX {
 
 		// Allow user to create shortcuts, i.e. just "mp3"
 		let formats = {
-			mp3: 'audio/mpeg',
-			wav: 'audio/wav',
-			aif: 'audio/x-aiff',
-			ogg: 'audio/ogg'
+			mp3: "audio/mpeg",
+			wav: "audio/wav",
+			aif: "audio/x-aiff",
+			ogg: "audio/ogg"
 		};
 
-		if (!audio) audio = document.createElement('audio');
+		if (!audio) audio = document.createElement("audio");
 
 		return audio.canPlayType(formats[type] || type);
 	}
@@ -279,20 +279,20 @@ class SFX {
 				request.response,
 				function (buffer) {
 					if (!buffer) {
-						console.error('error decoding file data: ' + sfx.url);
+						console.error("error decoding file data: " + sfx.url);
 						return;
 					}
 					sfx.buffer = buffer;
 					if (sfx.autoplay) sfx.play();
 				},
 				function (error) {
-					console.error('decodeAudioData error', error);
+					console.error("decodeAudioData error", error);
 				}
 			);
 		}
 
 		request.onerror = function () {
-			console.error('SFX Loader: XHR error');
+			console.error("SFX Loader: XHR error");
 		}
 
 		request.send();
@@ -348,10 +348,10 @@ class JoyStick {
 		this.moveDamping = options.moveDamping || 0.01;
 		if (this.domElement != undefined) {
 			const joystick = this;
-			if ('ontouchstart' in window) {
-				this.domElement.addEventListener('touchstart', function (evt) { evt.preventDefault(); joystick.tap(evt); evt.stopPropagation(); });
+			if ("ontouchstart" in window) {
+				this.domElement.addEventListener("touchstart", function (evt) { evt.preventDefault(); joystick.tap(evt); evt.stopPropagation(); });
 			} else {
-				this.domElement.addEventListener('mousedown', function (evt) { evt.preventDefault(); joystick.tap(evt); evt.stopPropagation(); });
+				this.domElement.addEventListener("mousedown", function (evt) { evt.preventDefault(); joystick.tap(evt); evt.stopPropagation(); });
 			}
 		}
 	}
@@ -367,7 +367,7 @@ class JoyStick {
 		// get the mouse cursor position at startup:
 		this.offset = this.getMousePosition(evt);
 		const joystick = this;
-		if ('ontouchstart' in window) {
+		if ("ontouchstart" in window) {
 			document.ontouchmove = function (evt) { evt.preventDefault(); joystick.move(evt); };
 			document.ontouchend = function (evt) { evt.preventDefault(); joystick.up(evt); };
 		} else {
@@ -404,7 +404,7 @@ class JoyStick {
 	}
 
 	up(evt) {
-		if ('ontouchstart' in window) {
+		if ("ontouchstart" in window) {
 			document.ontouchmove = null;
 			document.touchend = null;
 		} else {
@@ -430,30 +430,30 @@ class Preloader {
 		if (options.onprogress == undefined) {
 			this.onprogress = onprogress;
 			this.domElement = document.createElement("div");
-			this.domElement.style.position = 'absolute';
-			this.domElement.style.top = '0';
-			this.domElement.style.left = '0';
-			this.domElement.style.width = '100%';
-			this.domElement.style.height = '100%';
-			this.domElement.style.background = '#000';
-			this.domElement.style.opacity = '0.7';
-			this.domElement.style.display = 'flex';
-			this.domElement.style.alignItems = 'center';
-			this.domElement.style.justifyContent = 'center';
-			this.domElement.style.zIndex = '1111';
+			this.domElement.style.position = "absolute";
+			this.domElement.style.top = "0";
+			this.domElement.style.left = "0";
+			this.domElement.style.width = "100%";
+			this.domElement.style.height = "100%";
+			this.domElement.style.background = "#000";
+			this.domElement.style.opacity = "0.7";
+			this.domElement.style.display = "flex";
+			this.domElement.style.alignItems = "center";
+			this.domElement.style.justifyContent = "center";
+			this.domElement.style.zIndex = "1111";
 			const barBase = document.createElement("div");
-			barBase.style.background = '#aaa';
-			barBase.style.width = '50%';
-			barBase.style.minWidth = '250px';
-			barBase.style.borderRadius = '10px';
-			barBase.style.height = '15px';
+			barBase.style.background = "#aaa";
+			barBase.style.width = "50%";
+			barBase.style.minWidth = "250px";
+			barBase.style.borderRadius = "10px";
+			barBase.style.height = "15px";
 			this.domElement.appendChild(barBase);
 			const bar = document.createElement("div");
-			bar.style.background = '#2a2';
-			bar.style.width = '50%';
-			bar.style.borderRadius = '10px';
-			bar.style.height = '100%';
-			bar.style.width = '0';
+			bar.style.background = "#2a2";
+			bar.style.width = "50%";
+			bar.style.borderRadius = "10px";
+			bar.style.height = "100%";
+			bar.style.width = "0";
 			barBase.appendChild(bar);
 			this.progressBar = bar;
 			if (this.container != undefined) {
@@ -503,7 +503,7 @@ class Preloader {
 		const loader = this;
 		var xobj = new XMLHttpRequest();
 		xobj.overrideMimeType("application/json");
-		xobj.open('GET', url, true);
+		xobj.open("GET", url, true);
 		xobj.onreadystatechange = function () {
 			if (xobj.readyState == 4 && xobj.status == "200") {
 				loader.assets[url].complete = true;
