@@ -15,6 +15,8 @@ if (WEBGL.isWebGLAvailable() === false) {
 // define variables
 const mycanvas = ref<HTMLInputElement | null>(null);
 const player = {};
+const animations = {};
+const animFiles = ["walking", "running"]
 const clock = new THREE.Clock();
 
 // setup camera
@@ -29,7 +31,7 @@ camera.position.set(112, 100, 400);
 // create scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xa0a0a0);
-scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
+scene.fog = new THREE.Fog(0xa0a0a0, 700, 1800);
 
 // setup ambient light
 const ambientLight = new THREE.HemisphereLight(0xffffff, 0x444444);
@@ -48,7 +50,7 @@ scene.add(directionalLight);
 
 // ground
 const ground = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(2000, 2000),
+    new THREE.PlaneBufferGeometry(4000, 4000),
     new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false })
 );
 ground.rotation.x = - Math.PI / 2;
@@ -56,7 +58,7 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 // setup grid on the ground
-const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
+const grid = new THREE.GridHelper(4000, 60, 0x000000, 0x000000);
 grid.material.opacity = 0.2;
 grid.material.transparent = true;
 scene.add(grid);
@@ -74,41 +76,80 @@ controls.update();
 
 // load the assets
 const loader = new FBXLoader();
-loader.load("assets/city/fbx/FireFighter.fbx", function (object) {
+loader.load("assets/players/boy.fbx", (object) => {
     // animations
     object.mixer = new THREE.AnimationMixer(object);
     player.mixer = object.mixer;
     player.root = object.mixer.getRoot();
 
     // name for the object
-    object.name = "FireFighter";
+    object.name = "player";
 
     // traverse children and update attributes
-    object.traverse(function (child) {
+    object.traverse((child) => {
         if (child.isMesh) {
-            child.material.map = null;
             child.castShadow = true;
             child.receiveShadow = false;
         }
     });
 
+    // load textures
+    // const textureLoader = new THREE.TextureLoader();
+    // textureLoader.load("assets/city/Boy01_normal.jpg", function (texture) {
+    //     object.traverse(function (child) {
+    //         if (child.isMesh) {
+    //             child.material.map = texture;
+    //         }
+    //     });
+    // });
+
     // add object to scene
     scene.add(object);
+    console.log("loaded player");
     player.object = object;
-    player.mixer.clipAction(object.animations[0]).play();
+    animations.idle = object.animations[0];
 
+    // load animations
+    loadAnimations(loader);
     // render the scene
-    renderScene();
 });
+
+function loadAnimations(loader: FBXLoader) {
+    // load all animations into the game
+    // let filename: string = animFiles.pop() as string;
+    for (let filename of animFiles) {
+        loader.load(`assets/animations/${filename}.fbx`, (object) => {
+            animations[filename] = object.animations[0];
+        });
+
+        loadAction("idle");
+        console.log("loaded animations");
+        renderScene();
+    };
+};
 
 // render the scene
 function renderScene() {
     const dt = clock.getDelta();
-    requestAnimationFrame(function () { renderScene(); });
+    requestAnimationFrame(renderScene);
 
     if (player.mixer !== undefined) player.mixer.update(dt);
     renderer.render(scene, camera);
 }
+
+// load action
+function loadAction(name: string) {
+    const action = player.mixer.clipAction(animations[name]);
+    action.time = 0;
+
+    player.mixer.stopAllAction();
+    player.action = name;
+    player.actionTime = Date.now();
+    player.actionName = name;
+
+    action.fadeIn(0.5);
+    action.play();
+};
 
 // resize the scene
 function resizeScene() {
