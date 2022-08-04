@@ -7,6 +7,8 @@ import router from "./router";
 import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 import VueWriter from "vue-writer";
+import Vue3Lottie from "vue3-lottie";
+import "vue3-lottie/dist/style.css";
 
 // load fonts
 loadFonts();
@@ -18,6 +20,7 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(vuetify);
 app.use(VueWriter);
+app.use(Vue3Lottie);
 app.use(router);
 
 // mount app
