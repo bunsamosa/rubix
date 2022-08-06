@@ -263,20 +263,20 @@ class Game {
             const intersect = raycaster.intersectObjects(colliders);
 
             if (intersect.length > 0) {
-                // if (intersect[0].distance < 50) blocked = true;
-                for (let collision of intersect) {
-                    // forward collision
-                    if (collision.distance < 10 && forward) {
-                        blocked = true;
-                        break;
-                    }
+                if (intersect[0].distance < 50) blocked = true;
+                // for (let collision of intersect) {
+                //     // forward collision
+                //     if (collision.distance < 10 && forward) {
+                //         blocked = true;
+                //         break;
+                //     }
 
-                    // collision in other directions
-                    if (collision.distance < 100 && !forward) {
-                        blocked = true;
-                        break;
-                    }
-                }
+                //     // collision in other directions
+                //     if (collision.distance < 100 && !forward) {
+                //         blocked = true;
+                //         break;
+                //     }
+                // }
             }
         }
 
@@ -465,7 +465,6 @@ class Game {
         // update player position
         if (this.player.move !== undefined) {
             this.movePlayer(dt);
-            this.player.object.rotateY(this.player.move.turn * dt);
         }
 
         // move the camera
