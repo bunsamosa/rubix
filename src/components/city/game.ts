@@ -221,29 +221,22 @@ class Game {
         game.animate();
     };
 
-    // create obstacles on the map
-    createColliders() {
-        // create boxes
-        const geometry = new THREE.BoxGeometry(500, 400, 500);
-        const material = new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: true });
+    // current mouse position from canvas
+    getMousePosition(clientX, clientY) {
+        const pos = new THREE.Vector2();
+        pos.x = (clientX / this.renderer.domElement.clientWidth) * 2 - 1;
+        pos.y = -(clientY / this.renderer.domElement.clientHeight) * 2 + 1;
+        return pos;
+    }
 
-        // add boxes on the map
-        for (let x = -5000; x < 5000; x += 1000) {
-            for (let z = -5000; z < 5000; z += 1000) {
-                if (x == 0 && z == 0) continue;
-                const box = new THREE.Mesh(geometry, material);
-                box.position.set(x, 250, z);
-                this.scene.add(box);
-                this.colliders.push(box);
-            }
-        }
+    // event handler on the canvas
+    tap(evt) {
+        if (!this.interactive) return;
 
-        // create a stage to start from
-        const geometry2 = new THREE.BoxGeometry(1000, 40, 1000);
-        const stage = new THREE.Mesh(geometry2, material);
-        stage.position.set(0, 20, 0);
-        this.colliders.push(stage);
-        this.scene.add(stage);
+        let clientX = evt.targetTouches ? evt.targetTouches[0].pageX : evt.clientX;
+        let clientY = evt.targetTouches ? evt.targetTouches[0].pageY : evt.clientY;
+
+        this.mouse = this.getMousePosition(clientX, clientY);
     }
 
     // move the player on canvas
@@ -270,6 +263,7 @@ class Game {
             const intersect = raycaster.intersectObjects(colliders);
 
             if (intersect.length > 0) {
+                // if (intersect[0].distance < 50) blocked = true;
                 for (let collision of intersect) {
                     // forward collision
                     if (collision.distance < 10 && forward) blocked = true;
@@ -294,68 +288,55 @@ class Game {
         }
 
         // collision in other directions
-        if (colliders !== undefined) {
-            // cast left
-            direction.set(-1, 0, 0);
-            direction.applyMatrix4(this.player.object.matrix);
-            direction.normalize();
-            raycaster = new THREE.Raycaster(currentPosition, direction);
+        // if (colliders !== undefined) {
+        //     cast left
+        //     direction.set(-1, 0, 0);
+        //     direction.applyMatrix4(this.player.object.matrix);
+        //     direction.normalize();
+        //     raycaster = new THREE.Raycaster(currentPosition, direction);
 
-            let intersect = raycaster.intersectObjects(colliders);
-            if (intersect.length > 0) {
-                if (intersect[0].distance < 50) this.player.object.translateX(100 - intersect[0].distance);
-            }
+        //     let intersect = raycaster.intersectObjects(colliders);
+        //     if (intersect.length > 0) {
+        //         if (intersect[0].distance < 50) this.player.object.translateX(100 - intersect[0].distance);
+        //     }
 
-            // cast right
-            direction.set(1, 0, 0);
-            direction.applyMatrix4(this.player.object.matrix);
-            direction.normalize();
-            raycaster = new THREE.Raycaster(currentPosition, direction);
+        //     // cast right
+        //     direction.set(1, 0, 0);
+        //     direction.applyMatrix4(this.player.object.matrix);
+        //     direction.normalize();
+        //     raycaster = new THREE.Raycaster(currentPosition, direction);
 
-            intersect = raycaster.intersectObjects(colliders);
-            if (intersect.length > 0) {
-                if (intersect[0].distance < 50) this.player.object.translateX(intersect[0].distance - 100);
-            }
+        //     intersect = raycaster.intersectObjects(colliders);
+        //     if (intersect.length > 0) {
+        //         if (intersect[0].distance < 50) this.player.object.translateX(intersect[0].distance - 100);
+        //     }
 
-            // cast down
-            direction.set(0, -1, 0);
-            direction.y += 200;
-            raycaster = new THREE.Raycaster(currentPosition, direction);
-            const gravity = 30;
+        //     cast down
+        //     direction.set(0, -1, 0);
+        //     direction.y += 200;
+        //     raycaster = new THREE.Raycaster(currentPosition, direction);
+        //     const gravity = 30;
 
-            intersect = raycaster.intersectObjects(colliders);
-            if (intersect.length > 0) {
-                const targetY = direction.y - intersect[0].distance;
-                if (targetY > this.player.object.position.y) {
-                    //Going up
-                    this.player.object.position.y = 0.8 * this.player.object.position.y + 0.2 * targetY;
-                    this.player.velocityY = 0;
-                }
-                else if (targetY < this.player.object.position.y) {
-                    //Falling
-                    if (this.player.velocityY == undefined) this.player.velocityY = 0;
-
-                    this.player.velocityY += dt * gravity;
-                    this.player.object.position.y -= this.player.velocityY;
-
-                    if (this.player.object.position.y < targetY) {
-                        this.player.velocityY = 0;
-                        this.player.object.position.y = targetY;
-                    }
-                }
-            }
-            else if (this.player.object.position.y > 0) {
-                if (this.player.velocityY == undefined) this.player.velocityY = 0;
-
-                this.player.velocityY += dt * gravity;
-                this.player.object.position.y -= this.player.velocityY;
-
-                if (this.player.object.position.y < 0) {
-                    this.player.velocityY = 0;
-                    this.player.object.position.y = 0;
-                }
-            }
-        }
+        //     intersect = raycaster.intersectObjects(colliders);
+        //     console.log(intersect);
+        //     if (intersect.length > 0) {
+        //         const targetY = currentPosition.y - intersect[0].distance;
+        //         if (targetY > this.player.object.position.y) {
+        //             //Going up
+        //             this.player.object.position.y = 0.8 * this.player.object.position.y + 0.2 * targetY;
+        //             this.player.velocityY = 0;
+        //         } else if (targetY < this.player.object.position.y) {
+        //             //Falling
+        //             if (this.player.velocityY == undefined) this.player.velocityY = 0;
+        //             this.player.velocityY += dt * gravity;
+        //             this.player.object.position.y -= this.player.velocityY;
+        //             if (this.player.object.position.y < targetY) {
+        //                 this.player.velocityY = 0;
+        //                 this.player.object.position.y = targetY;
+        //             }
+        //         }
+        //     }
+        // }
 
         // turn
         this.player.object.rotateY(this.player.move.turn * dt);
@@ -464,9 +445,7 @@ class Game {
         requestAnimationFrame(function () { game.animate(); });
 
         // update animations
-        if (this.player.mixer !== undefined) {
-            this.player.mixer.update(dt);
-        }
+        if (this.player.mixer != undefined && this.mode == this.modes.ACTIVE) this.player.mixer.update(dt);
 
         // update player control state
         if (this.player.action == "walking") {
@@ -480,6 +459,7 @@ class Game {
         // update player position
         if (this.player.move !== undefined) {
             this.movePlayer(dt);
+            this.player.object.rotateY(this.player.move.turn * dt);
         }
 
         // move the camera
@@ -491,21 +471,20 @@ class Game {
 
             // set cameras target object to look at
             const pos = this.player.object.position.clone();
-            pos.y += 200;
+            pos.y += 300;
             this.camera.lookAt(pos);
         }
 
         // move the directional light to focus the player
         if (this.sun != undefined) {
-            this.sun.position.x = this.player.object.position.x;
-            this.sun.position.y = this.player.object.position.y + 200;
-            this.sun.position.z = this.player.object.position.z + 100;
-            this.sun.target = this.player.object;
+            this.sun.position.copy(this.camera.position);
+            this.sun.position.y += 10;
         }
 
         // render scene
         this.renderer.render(this.scene, this.camera);
 
+        // if (this.stats != undefined) this.stats.update();
     }
 }
 
