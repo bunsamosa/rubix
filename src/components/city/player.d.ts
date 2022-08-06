@@ -7,4 +7,5 @@ type Player = {
     actionTime: any;
     cameras: any;
     root: any;
+    velocityY: Float;
 };
