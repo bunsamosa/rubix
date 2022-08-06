@@ -30,7 +30,7 @@ io.sockets.on('connection', function (socket) {
     socket.userData.z = data.z;
     socket.userData.heading = data.h;
     socket.userData.pb = data.pb,
-      socket.userData.action = "Idle";
+      socket.userData.action = "idle";
   });
 
   // player variable updates
@@ -54,7 +54,7 @@ http.listen(8080, function () {
   console.log('listening on *:8080');
 });
 
-// broadcast updates
+// broadcast updates - 25 ticks per second
 setInterval(function () {
   const nsp = io.of('/');
   let packet = [];
