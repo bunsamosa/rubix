@@ -470,6 +470,7 @@ class Preloader {
 		const loader = this;
 		function onprogress(delta) {
 			const progress = delta * 100;
+			if (progress > 100) progress = 100;
 			loader.progressBar.style.width = `${progress}%`;
 		}
 	}
