@@ -266,10 +266,16 @@ class Game {
                 // if (intersect[0].distance < 50) blocked = true;
                 for (let collision of intersect) {
                     // forward collision
-                    if (collision.distance < 10 && forward) blocked = true;
+                    if (collision.distance < 10 && forward) {
+                        blocked = true;
+                        break;
+                    }
 
                     // collision in other directions
-                    if (collision.distance < 100 && !forward) blocked = true;
+                    if (collision.distance < 100 && !forward) {
+                        blocked = true;
+                        break;
+                    }
                 }
             }
         }
