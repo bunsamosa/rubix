@@ -529,4 +529,4 @@ class Preloader {
 	}
 }
 
-export { JoyStick };
+export { JoyStick, SFX, Preloader };
