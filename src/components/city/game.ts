@@ -23,6 +23,7 @@ class Game {
     public messages: any;
     public animationFiles: Array<string>;
     public loadingManager: THREE.LoadingManager;
+    public environment: any;
 
     constructor(container: HTMLElement) {
 
@@ -170,27 +171,53 @@ class Game {
         window.addEventListener("resize", () => { game.onWindowResize(); }, false);
     };
 
-    // load all animations
-    loadAnimations(loader: FBXLoader, animFiles: string[]) {
+    // load city environment
+    loadEnvironment(loader) {
         const game = this;
-        for (let filename of animFiles) {
+        loader.load(`${game.assetsPath}/city.fbx`, function (object) {
+            game.environment = object;
+            game.colliders = [];
+            game.scene.add(object);
+
+            // create obstacle colliders
+            object.traverse(function (child) {
+                if (child.isMesh) {
+                    game.colliders.push(child);
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            // const tloader = new THREE.CubeTextureLoader(game.loadingManager);
+
+            // var textureCube = tloader.load([
+            //     `${game.assetsPath}/city_glow.tga`,
+            //     `${game.assetsPath}/city_metal.tga`,
+            //     `${game.assetsPath}/city_rough.tga`,
+            //     `${game.assetsPath}/city_tex.tga`,
+            //     `${game.assetsPath}/sidewalk_tile.tga`,
+            //     `${game.assetsPath}/sidewalk_tile_metal.tga`,
+            //     `${game.assetsPath}/sidewalk_tile_rough.tga`
+            // ]);
+
+            // game.scene.background = textureCube;
+
+            game.loadAnimations(loader);
+        })
+    };
+
+    // load all animations
+    loadAnimations(loader: FBXLoader) {
+        const game = this;
+        for (let filename of this.animationFiles) {
             loader.load(`assets/animations/${filename}.fbx`, (object) => {
                 game.animations[filename] = object.animations[0];
             });
         }
 
-        // create cameras
-        game.createCameras();
-        game.createColliders();
-
-        // create Joystick for player control
-        game.joystick = new JoyStick({
-            onMove: game.playerControl,
-            game: game
-        });
-
         // set action and start rendering
         game.action = "idle";
+        game.mode = game.modes.ACTIVE;
         game.animate();
     };
 
