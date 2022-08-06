@@ -22,6 +22,7 @@ class Game {
     public assetsPath: string;
     public messages: any;
     public animationFiles: Array<string>;
+    public fbxLoader: FBXLoader;
     public loadingManager: THREE.LoadingManager;
     public environment: any;
 
@@ -60,13 +61,14 @@ class Game {
         this.assetsPath = "/assets/city";
         this.animationFiles = ["walking", "running", "walkback", "turn", "idle"];
         const game = this;
+        game.init();
         const options = {
             assets: [
                 `${this.assetsPath}/city.fbx`,
+                `assets/players/player1.fbx`,
                 `${this.assetsPath}/Volumes/Vault/Dropbox/BITGEM_Products/_smashy_craft_series/city/city/construction/city_tex.tga`
             ],
             oncomplete: function () {
-                game.init();
                 game.animate();
             }
         };
@@ -120,8 +122,8 @@ class Game {
         // add handler for TGA textures
         this.loadingManager.addHandler(/\.tga$/i, new TGALoader());
 
-        const loader = new FBXLoader(this.loadingManager);
-        loader.load("assets/players/player1.fbx", (object) => {
+        this.fbxLoader = new FBXLoader(this.loadingManager);
+        this.fbxLoader.load("assets/players/player1.fbx", (object) => {
             // animations
             const mixer = new THREE.AnimationMixer(object);
             game.player.mixer = mixer;
@@ -156,7 +158,7 @@ class Game {
 
             // create cameras and environment
             game.createCameras();
-            game.loadEnvironment(loader);
+            game.loadEnvironment();
         });
 
         // create renderer and attach to DOM
@@ -172,17 +174,18 @@ class Game {
     };
 
     // load city environment
-    loadEnvironment(loader) {
+    loadEnvironment() {
         const game = this;
-        loader.load(`${game.assetsPath}/city.fbx`, function (object) {
+        game.fbxLoader.load(`${game.assetsPath}/city.fbx`, function (object) {
             game.environment = object;
             game.colliders = [];
             game.scene.add(object);
 
             // create obstacle colliders
             object.traverse(function (child) {
-                if (child.isMesh) {
-                    game.colliders.push(child);
+                let childMesh = child as THREE.Mesh;
+                if (childMesh.isMesh) {
+                    game.colliders.push(childMesh);
                     child.castShadow = true;
                     child.receiveShadow = true;
                 }
@@ -202,15 +205,15 @@ class Game {
 
             // game.scene.background = textureCube;
 
-            game.loadAnimations(loader);
+            game.loadAnimations();
         })
     };
 
     // load all animations
-    loadAnimations(loader: FBXLoader) {
+    loadAnimations() {
         const game = this;
         for (let filename of this.animationFiles) {
-            loader.load(`assets/animations/${filename}.fbx`, (object) => {
+            game.fbxLoader.load(`assets/animations/${filename}.fbx`, (object) => {
                 game.animations[filename] = object.animations[0];
             });
         }
