@@ -15,6 +15,7 @@ class Game {
     public clock: THREE.Clock;
     public sun: THREE.DirectionalLight;
     public joystick: JoyStick | any;
+    public colliders: Array<THREE.Mesh>;
 
     constructor(container: HTMLElement) {
 
@@ -28,6 +29,7 @@ class Game {
         this.player = {} as Player;
         this.animations = new Map();
         this.container = container;
+        this.colliders = [];
         const animFiles = ["walking", "running", "walkback", "turn", "idle"];
 
         // initialize threejs components
@@ -78,7 +80,7 @@ class Game {
 
         // load player model
         const loader = new FBXLoader();
-        loader.load("assets/players/boy.fbx", (object) => {
+        loader.load("assets/players/player1.fbx", (object) => {
             // animations
             const mixer = new THREE.AnimationMixer(object);
             game.player.mixer = mixer;
@@ -122,7 +124,7 @@ class Game {
         this.container.appendChild(this.renderer.domElement);
 
         // add event listener to resize canvas on window resize
-        window.addEventListener("resize", game.onWindowResize, false);
+        window.addEventListener("resize", () => { game.onWindowResize(); }, false);
 
         // generic error handler
         window.addEventListener("error", (error) => { console.error(JSON.stringify(error)); });
@@ -139,6 +141,7 @@ class Game {
 
         // create cameras
         game.createCameras();
+        game.createColliders();
 
         // create Joystick for player control
         game.joystick = new JoyStick({
@@ -151,16 +154,140 @@ class Game {
         game.animate();
     };
 
-    // move player
-    movePlayer(dt) {
-        // move the player forward
-        if (this.player.move.forward > 0) {
-            const speed = (this.player.action == "running") ? 400 : 150;
-            this.player.object.translateZ(dt * speed);
+    // create obstacles on the map
+    createColliders() {
+        // create boxes
+        const geometry = new THREE.BoxGeometry(500, 400, 500);
+        const material = new THREE.MeshBasicMaterial({ color: 0x222222, wireframe: true });
+
+        // add boxes on the map
+        for (let x = -5000; x < 5000; x += 1000) {
+            for (let z = -5000; z < 5000; z += 1000) {
+                if (x == 0 && z == 0) continue;
+                const box = new THREE.Mesh(geometry, material);
+                box.position.set(x, 250, z);
+                this.scene.add(box);
+                this.colliders.push(box);
+            }
         }
-        else {
-            // move player backwards
-            this.player.object.translateZ(-dt * 30);
+
+        // create a stage to start from
+        const geometry2 = new THREE.BoxGeometry(1000, 40, 1000);
+        const stage = new THREE.Mesh(geometry2, material);
+        stage.position.set(0, 20, 0);
+        this.colliders.push(stage);
+        this.scene.add(stage);
+    }
+
+    // move the player on canvas
+    movePlayer(dt) {
+        // fetch current position of player
+        const currentPosition = this.player.object.position.clone();
+        currentPosition.y += 60; // above the ground
+
+        // fetch current direction - object's Z axis
+        let direction = new THREE.Vector3();
+        this.player.object.getWorldDirection(direction);
+
+        // backward direction based on joystick
+        const forward = this.player.move.forward > 0 ? true : false;
+        if (!forward) direction.negate();
+
+        // raycaster to identify collision
+        let raycaster = new THREE.Raycaster(currentPosition, direction);
+        let blocked = false;
+        const colliders = this.colliders;
+
+        // cast rays towards obstacles and find intersections
+        if (colliders !== undefined) {
+            const intersect = raycaster.intersectObjects(colliders);
+
+            if (intersect.length > 0) {
+                for (let collision of intersect) {
+                    // forward collision
+                    if (collision.distance < 10 && forward) blocked = true;
+
+                    // collision in other directions
+                    if (collision.distance < 100 && !forward) blocked = true;
+                }
+            }
+        }
+
+        // move the player if not blocked
+        if (!blocked) {
+            // move the player forward
+            if (forward) {
+                const speed = (this.player.action == "running") ? 400 : 150;
+                this.player.object.translateZ(dt * speed);
+            }
+            else {
+                // move player backwards
+                this.player.object.translateZ(-dt * 30);
+            }
+        }
+
+        // collision in other directions
+        if (colliders !== undefined) {
+            // cast left
+            direction.set(-1, 0, 0);
+            direction.applyMatrix4(this.player.object.matrix);
+            direction.normalize();
+            raycaster = new THREE.Raycaster(currentPosition, direction);
+
+            let intersect = raycaster.intersectObjects(colliders);
+            if (intersect.length > 0) {
+                if (intersect[0].distance < 50) this.player.object.translateX(100 - intersect[0].distance);
+            }
+
+            // cast right
+            direction.set(1, 0, 0);
+            direction.applyMatrix4(this.player.object.matrix);
+            direction.normalize();
+            raycaster = new THREE.Raycaster(currentPosition, direction);
+
+            intersect = raycaster.intersectObjects(colliders);
+            if (intersect.length > 0) {
+                if (intersect[0].distance < 50) this.player.object.translateX(intersect[0].distance - 100);
+            }
+
+            // cast down
+            direction.set(0, -1, 0);
+            direction.y += 200;
+            raycaster = new THREE.Raycaster(currentPosition, direction);
+            const gravity = 30;
+
+            intersect = raycaster.intersectObjects(colliders);
+            if (intersect.length > 0) {
+                const targetY = direction.y - intersect[0].distance;
+                if (targetY > this.player.object.position.y) {
+                    //Going up
+                    this.player.object.position.y = 0.8 * this.player.object.position.y + 0.2 * targetY;
+                    this.player.velocityY = 0;
+                }
+                else if (targetY < this.player.object.position.y) {
+                    //Falling
+                    if (this.player.velocityY == undefined) this.player.velocityY = 0;
+
+                    this.player.velocityY += dt * gravity;
+                    this.player.object.position.y -= this.player.velocityY;
+
+                    if (this.player.object.position.y < targetY) {
+                        this.player.velocityY = 0;
+                        this.player.object.position.y = targetY;
+                    }
+                }
+            }
+            else if (this.player.object.position.y > 0) {
+                if (this.player.velocityY == undefined) this.player.velocityY = 0;
+
+                this.player.velocityY += dt * gravity;
+                this.player.object.position.y -= this.player.velocityY;
+
+                if (this.player.object.position.y < 0) {
+                    this.player.velocityY = 0;
+                    this.player.object.position.y = 0;
+                }
+            }
         }
 
         // turn
@@ -290,15 +417,18 @@ class Game {
 
         // move the camera
         if (this.player.cameras != undefined && this.player.cameras.active != undefined) {
+            // fetch current active position of the player camera
+            // and move game camera to that position smoothly
             let worldPosition = this.player.cameras.active.getWorldPosition(new THREE.Vector3());
             this.camera.position.lerp(worldPosition, 0.05);
 
+            // set cameras target object to look at
             const pos = this.player.object.position.clone();
             pos.y += 200;
             this.camera.lookAt(pos);
         }
 
-        // move the directionall light to focus the player
+        // move the directional light to focus the player
         if (this.sun != undefined) {
             this.sun.position.x = this.player.object.position.x;
             this.sun.position.y = this.player.object.position.y + 200;
