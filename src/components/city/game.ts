@@ -2,6 +2,7 @@ import WEBGL from "three/examples/jsm/capabilities/WebGL";
 import * as THREE from "three";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+import { TGALoader } from "three/examples/jsm/loaders/TGALoader";
 import { JoyStick, SFX, Preloader } from "./toon3d";
 
 // game class
@@ -78,6 +79,95 @@ class Game {
 
         // generic error handler
         window.addEventListener("error", (error) => { console.error(JSON.stringify(error)); });
+    };
+
+    // initialize threejs components
+    init() {
+        const game = this;
+        this.mode = this.modes.INITIALISING;
+
+        // setup camera
+        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 200000);
+
+        // create scene
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x00a0f0);
+
+        // setup ambient light
+        const ambientLight = new THREE.AmbientLight(0xaaaaaa);
+        this.scene.add(ambientLight);
+
+        // setup directional light and shadows
+        const dicrectionalLight = new THREE.DirectionalLight(0xaaaaaa);
+        dicrectionalLight.position.set(30, 100, 40);
+        dicrectionalLight.target.position.set(0, 0, 0);
+        dicrectionalLight.castShadow = true;
+
+        const shadowSize = 500;
+        dicrectionalLight.shadow.camera.near = 1;
+        dicrectionalLight.shadow.camera.far = shadowSize;
+        dicrectionalLight.shadow.camera.left = dicrectionalLight.shadow.camera.bottom = -shadowSize;
+        dicrectionalLight.shadow.camera.right = dicrectionalLight.shadow.camera.top = shadowSize;
+        dicrectionalLight.shadow.bias = 0.0039;
+        dicrectionalLight.shadow.mapSize.width = 1024;
+        dicrectionalLight.shadow.mapSize.height = 1024;
+        this.sun = dicrectionalLight;
+        this.scene.add(dicrectionalLight);
+
+        // load player model
+        this.loadingManager = new THREE.LoadingManager();
+        // add handler for TGA textures
+        this.loadingManager.addHandler(/\.tga$/i, new TGALoader());
+
+        const loader = new FBXLoader(this.loadingManager);
+        loader.load("assets/players/player1.fbx", (object) => {
+            // animations
+            const mixer = new THREE.AnimationMixer(object);
+            game.player.mixer = mixer;
+            game.player.root = mixer.getRoot();
+            game.animations["idle"] = object.animations[0];
+
+            // name for the object
+            object.name = "player";
+
+            // traverse children and update attributes
+            object.traverse(function (child) {
+                let isMesh = (child as THREE.Mesh).isMesh;
+                if (isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = false;
+                }
+            });
+
+            // wrap player in a 3D object
+            object.scale.set(1.2, 1.2, 1.2);
+            game.player.object = new THREE.Object3D();
+            game.player.object.position.set(2600, 0, 4300);
+            game.player.object.rotation.set(0, 2, 0); // between 0 - 6
+            game.sun.target = game.player.object;
+            game.player.object.add(object);
+            game.scene.add(game.player.object);
+
+            game.joystick = new JoyStick({
+                onMove: game.playerControl,
+                game: game
+            });
+
+            // create cameras and environment
+            game.createCameras();
+            game.loadEnvironment(loader);
+        });
+
+        // create renderer and attach to DOM
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.shadowMap.enabled = true;
+        // this.container.innerHTML = "";
+        this.container.appendChild(this.renderer.domElement);
+
+        // add event listener to resize canvas on window resize
+        window.addEventListener("resize", () => { game.onWindowResize(); }, false);
     };
 
     // load all animations
