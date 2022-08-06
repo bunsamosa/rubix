@@ -60,13 +60,13 @@ class Game {
         this.assetsPath = "/assets/city";
         this.animationFiles = ["walking", "running", "walkback", "turn", "idle"];
         const game = this;
+        game.init();
         const options = {
             assets: [
                 `${this.assetsPath}/city.fbx`,
                 `${this.assetsPath}/Volumes/Vault/Dropbox/BITGEM_Products/_smashy_craft_series/city/city/construction/city_tex.tga`
             ],
             oncomplete: function () {
-                game.init();
                 game.animate();
             }
         };
