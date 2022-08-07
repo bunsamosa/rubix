@@ -24,6 +24,11 @@ class Game {
     public animationFiles: Array<string>;
     public loadingManager: THREE.LoadingManager;
     public environment: any;
+    public remotePlayers: any;
+    public remoteColliders: any;
+    public loadingPlayers: any;
+    public remoteData: any;
+    public sfx: any;
 
     constructor(container: HTMLElement) {
 
@@ -51,23 +56,24 @@ class Game {
         this.messages = {
             text: [
                 "Welcome to Rubix",
-                "GOOD LUCK!"
+                "Have fun!"
             ],
             index: 0
         }
 
         // asset preloading
-        this.assetsPath = "/assets/city";
+        this.assetsPath = "/assets";
         this.animationFiles = ["walking", "running", "walkback", "turn", "idle"];
+
         const game = this;
-        game.init();
         const options = {
             assets: [
-                `${this.assetsPath}/city.fbx`,
-                `${this.assetsPath}/Volumes/Vault/Dropbox/BITGEM_Products/_smashy_craft_series/city/city/construction/city_tex.tga`
+                `${this.assetsPath}/city/city.fbx`,
+                `${this.assetsPath}/city/Volumes/Vault/Dropbox/BITGEM_Products/_smashy_craft_series/city/city/construction/city_tex.tga`,
+                `${this.assetsPath}/players/player1.fbx`
             ],
             oncomplete: function () {
-                game.animate();
+                game.init();
             }
         };
         this.animationFiles.forEach(filename => {
@@ -76,7 +82,8 @@ class Game {
         this.mode = this.modes.PRELOAD;
         const preloader = new Preloader(options);
 
-        // const sfxExt = SFX.supportsAudioType('mp3') ? 'mp3' : 'ogg';
+        // in-game sfx audio
+        const sfxExt = SFX.supportsAudioType('mp3') ? 'mp3' : 'ogg';
 
         // generic error handler
         window.addEventListener("error", (error) => { console.error(JSON.stringify(error)); });
@@ -121,7 +128,7 @@ class Game {
         this.loadingManager.addHandler(/\.tga$/i, new TGALoader());
 
         const loader = new FBXLoader(this.loadingManager);
-        loader.load("assets/players/player1.fbx", (object) => {
+        loader.load(`${this.assetsPath}/players/player1.fbx`, (object) => {
             // animations
             const mixer = new THREE.AnimationMixer(object);
             game.player.mixer = mixer;
@@ -164,17 +171,29 @@ class Game {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
-        // this.container.innerHTML = "";
+        this.container.innerHTML = "";
         this.container.appendChild(this.renderer.domElement);
 
         // add event listener to resize canvas on window resize
         window.addEventListener("resize", () => { game.onWindowResize(); }, false);
     };
 
+    // load in-game audio
+    // initSfx() {
+    //     this.sfx = {};
+    //     this.sfx.context = new (window.AudioContext || window.webkitAudioContext)();
+    //     this.sfx.gliss = new SFX({
+    //         context: this.sfx.context,
+    //         src: { mp3: `${this.assetsPath}/sfx/gliss.mp3`, ogg: `${this.assetsPath}/sfx/gliss.ogg` },
+    //         loop: false,
+    //         volume: 0.3
+    //     });
+    // }
+
     // load city environment
     loadEnvironment(loader) {
         const game = this;
-        loader.load(`${game.assetsPath}/city.fbx`, function (object) {
+        loader.load(`${game.assetsPath}/city/city.fbx`, function (object) {
             game.environment = object;
             game.colliders = [];
             game.scene.add(object);
@@ -210,7 +229,7 @@ class Game {
     loadAnimations(loader: FBXLoader) {
         const game = this;
         for (let filename of this.animationFiles) {
-            loader.load(`assets/animations/${filename}.fbx`, (object) => {
+            loader.load(`${game.assetsPath}/animations/${filename}.fbx`, (object) => {
                 game.animations[filename] = object.animations[0];
             });
         }
