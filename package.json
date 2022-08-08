@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@livepeer/webrtmp-sdk": "^0.2.3",
     "@mdi/font": "5.9.55",
     "pinia": "^2.0.14",
     "roboto-fontface": "*",
