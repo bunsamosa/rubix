@@ -14,6 +14,11 @@ const router = createRouter({
             name: "city",
             component: () => import("../views/CityView.vue"),
         },
+        {
+            path: "/stream",
+            name: "stream",
+            component: () => import("../views/StreamerView.vue"),
+        }
     ],
 });
 
