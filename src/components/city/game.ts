@@ -66,6 +66,7 @@ class Game {
         this.animationFiles = ["walking", "running", "walkback", "turn", "idle"];
 
         const game = this;
+        game.init();
         const options = {
             assets: [
                 `${this.assetsPath}/city/city.fbx`,
@@ -73,7 +74,7 @@ class Game {
                 `${this.assetsPath}/players/player1.fbx`
             ],
             oncomplete: function () {
-                game.init();
+                game.animate;
             }
         };
         this.animationFiles.forEach(filename => {
