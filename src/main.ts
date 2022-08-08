@@ -8,7 +8,10 @@ import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 import VueWriter from "vue-writer";
 import Vue3Lottie from "vue3-lottie";
+
+
 import "vue3-lottie/dist/style.css";
+import "video.js/dist/video-js.css";
 
 // load fonts
 loadFonts();
