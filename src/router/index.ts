@@ -18,6 +18,11 @@ const router = createRouter({
             path: "/stream",
             name: "stream",
             component: () => import("../views/StreamerView.vue"),
+        },
+        {
+            path: "/playback",
+            name: "playback",
+            component: () => import("../views/VideoPlayer.vue"),
         }
     ],
 });
