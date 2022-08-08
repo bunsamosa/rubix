@@ -8,6 +8,8 @@ import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 import VueWriter from "vue-writer";
 import Vue3Lottie from "vue3-lottie";
+import QrcodeReaderVue3 from "qrcode-reader-vue3";
+
 
 
 import "vue3-lottie/dist/style.css";
@@ -24,6 +26,7 @@ app.use(createPinia());
 app.use(vuetify);
 app.use(VueWriter);
 app.use(Vue3Lottie);
+app.use(QrcodeReaderVue3);
 app.use(router);
 
 // mount app
