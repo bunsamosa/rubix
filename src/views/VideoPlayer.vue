@@ -1,5 +1,5 @@
 <script>
-import VideoPlayer from '@/components/videoPlayer/VideoPlayerComponent.vue';
+import VideoPlayer from '@/components/player/VideoPlayerComponent.vue';
 
 
 // wrap video player component
