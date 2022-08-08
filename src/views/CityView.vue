@@ -3,6 +3,6 @@ import CityRenderer from "@/components/city/CityRenderer.vue";
 </script>
 
 <template>
-    <div id="mycanvas" class="h-screen"></div>
+    <div id="mycanvas" style="height:85%"></div>
     <CityRenderer container="mycanvas" />
 </template>
