@@ -240,23 +240,6 @@ class Game {
         game.animate();
     };
 
-    // current mouse position from canvas
-    getMousePosition(clientX, clientY) {
-        const pos = new THREE.Vector2();
-        pos.x = (clientX / this.renderer.domElement.clientWidth) * 2 - 1;
-        pos.y = -(clientY / this.renderer.domElement.clientHeight) * 2 + 1;
-        return pos;
-    }
-
-    // event handler on the canvas
-    tap(evt) {
-        if (!this.interactive) return;
-
-        let clientX = evt.targetTouches ? evt.targetTouches[0].pageX : evt.clientX;
-        let clientY = evt.targetTouches ? evt.targetTouches[0].pageY : evt.clientY;
-
-        this.mouse = this.getMousePosition(clientX, clientY);
-    }
 
     // move the player on canvas
     movePlayer(dt) {

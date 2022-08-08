@@ -63,7 +63,7 @@ function stopStream() {
 <template>
     <div class="steamer">
         <v-container>
-            <h2>Livestream video with Rubix</h2>
+            <h2>Rubix Livestream</h2>
         </v-container>
         <v-container>
             <video class="streamVideo" ref="streamVideo" />

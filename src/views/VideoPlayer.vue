@@ -4,7 +4,7 @@ import VideoPlayer from '@/components/VideoPlayer/VideoPlayerComponent.vue';
 
 // wrap video player component
 export default {
-    name: 'VideoExample',
+    name: 'VideoStream',
     components: {
         VideoPlayer
     },
