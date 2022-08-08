@@ -23,6 +23,11 @@ const router = createRouter({
             path: "/playback",
             name: "playback",
             component: () => import("../views/VideoPlayer.vue"),
+        },
+        {
+            path: "/validate",
+            name: "validate",
+            component: () => import("../views/ValidatorView.vue"),
         }
     ],
 });
